@@ -9,14 +9,31 @@ import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,6 +47,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             Manifest.permission.READ_MEDIA_AUDIO
@@ -66,7 +84,8 @@ class MainActivity : ComponentActivity() {
     private fun showPermissionDenied() {
         setContent {
             TunoTheme {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center) {
                     Text("Permission required to load music.")
                 }
             }
@@ -118,6 +137,7 @@ fun getAlbumArtUri(albumId: Long): Uri =
         .appendPath(albumId.toString())
         .build()
 
+
 @Composable
 fun MusicListScreen(context: Context) {
     val musicList = remember { mutableStateListOf<Music>() }
@@ -133,8 +153,11 @@ fun MusicListScreen(context: Context) {
         }
     } else {
         LazyColumn {
-            items(musicList) { music ->
+            itemsIndexed(musicList) { index, music ->
                 MusicItem(music)
+                if (index < musicList.lastIndex) {
+                    HorizontalDivider()
+                }
             }
         }
     }
@@ -154,6 +177,7 @@ fun MusicItem(music: Music) {
             Text(text = music.title, fontWeight = FontWeight.Bold)
             Text(text = music.artist, style = MaterialTheme.typography.bodySmall)
         }
+
     }
 }
 
@@ -163,6 +187,7 @@ fun AlbumArtOrFallback(albumId: Long) {
     Box(
         modifier = Modifier
             .size(64.dp)
+
     ) {
 
         AsyncImage(
@@ -171,24 +196,12 @@ fun AlbumArtOrFallback(albumId: Long) {
                 .crossfade(true)
                 .build(),
             contentDescription = "Album Art",
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
+                .clip(RoundedCornerShape(6.dp))
 
         )
     }
 }
 
-//@Composable
-//fun FallbackMusicIcon() {
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize(),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Image(
-//            imageVector = Icons.Default.MusicNote,
-//            contentDescription = "Music Icon",
-//            modifier = Modifier.size(32.dp),
-//            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
-//        )
-//    }
-//}
