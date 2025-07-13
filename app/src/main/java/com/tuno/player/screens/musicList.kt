@@ -3,6 +3,7 @@ package com.tuno.player.screens
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,9 +29,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.tuno.player.NowPlayingScreen
 
 
 data class Music(
@@ -78,7 +81,7 @@ fun getAlbumArtUri(albumId: Long): Uri =
         .build()
 
 @Composable
-fun MusicListScreen(context: Context) {
+fun MusicListScreen(context: Context, navController: NavController) {
     val musicList = remember { mutableStateListOf<Music>() }
 
     LaunchedEffect(Unit) {
@@ -93,7 +96,7 @@ fun MusicListScreen(context: Context) {
     } else {
         LazyColumn {
             itemsIndexed(musicList) { index, music ->
-                MusicItem(music)
+                MusicItem(music, navController)
                 if (index < musicList.lastIndex) {
                     HorizontalDivider(
                         modifier = Modifier.padding(0.dp)
@@ -105,12 +108,15 @@ fun MusicListScreen(context: Context) {
 }
 
 @Composable
-fun MusicItem(music: Music) {
+fun MusicItem(music: Music, navController: NavController) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
+            .clickable(onClick = {
+                navController.navigate( NowPlayingScreen("Macho"))
+            })
     ) {
         AlbumArtOrFallback(albumId = music.albumId)
         Spacer(modifier = Modifier.width(16.dp))
