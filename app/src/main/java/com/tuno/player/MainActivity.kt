@@ -1,3 +1,4 @@
+//MainActivity.kt
 package com.tuno.player
 
 import android.Manifest
@@ -19,18 +20,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tuno.player.screens.MusicListScreen
 import com.tuno.player.screens.NowPlaying
 import com.tuno.player.ui.theme.TunoTheme
+import com.tuno.player.utils.SharedMusicViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
 object MusicListScreen
 @Serializable
-data class NowPlayingScreen(val name: String)
+data class NowPlayingScreen(
+    val id: Long
+)
 
 class MainActivity : ComponentActivity() {
 
@@ -76,10 +81,17 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun MainController() {
         val navController = rememberNavController()
+        val musicViewModel: SharedMusicViewModel = viewModel()
         NavHost(navController = navController, startDestination = MusicListScreen) {
-            composable<MusicListScreen> { MusicListScreen( context = LocalContext.current, navController) }
+            composable<MusicListScreen> {
+                MusicListScreen(
+                    context = LocalContext.current,
+                    navController = navController,
+                    viewmodel = musicViewModel
+                )
+            }
             composable<NowPlayingScreen> {
-                NowPlaying( it.arguments?.getString("name") ?: "Unknown"  ) }
+                NowPlaying( viewModel = musicViewModel ) }
         }
     }
 

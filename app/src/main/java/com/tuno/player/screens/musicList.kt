@@ -1,3 +1,4 @@
+//musicList.kt
 package com.tuno.player.screens
 
 import android.content.Context
@@ -34,6 +35,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.tuno.player.NowPlayingScreen
+import com.tuno.player.utils.SharedMusicViewModel
 
 
 data class Music(
@@ -81,7 +83,11 @@ fun getAlbumArtUri(albumId: Long): Uri =
         .build()
 
 @Composable
-fun MusicListScreen(context: Context, navController: NavController) {
+fun MusicListScreen(
+    context: Context,
+    navController: NavController,
+    viewmodel : SharedMusicViewModel
+) {
     val musicList = remember { mutableStateListOf<Music>() }
 
     LaunchedEffect(Unit) {
@@ -96,7 +102,7 @@ fun MusicListScreen(context: Context, navController: NavController) {
     } else {
         LazyColumn {
             itemsIndexed(musicList) { index, music ->
-                MusicItem(music, navController)
+                MusicItem(music, navController, viewmodel)
                 if (index < musicList.lastIndex) {
                     HorizontalDivider(
                         modifier = Modifier.padding(0.dp)
@@ -108,14 +114,15 @@ fun MusicListScreen(context: Context, navController: NavController) {
 }
 
 @Composable
-fun MusicItem(music: Music, navController: NavController) {
+fun MusicItem(music: Music, navController: NavController, viewModel: SharedMusicViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
             .clickable(onClick = {
-                navController.navigate( NowPlayingScreen("Macho"))
+                viewModel.selectMusic(music)
+                navController.navigate(NowPlayingScreen(id = music.id))
             })
     ) {
         AlbumArtOrFallback(albumId = music.albumId)
