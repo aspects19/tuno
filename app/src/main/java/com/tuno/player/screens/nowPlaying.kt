@@ -21,9 +21,10 @@ fun NowPlaying(viewModel: SharedMusicViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            AlbumArtOrFallback(music.albumId, size = 500)
             Text("Now Playing: ${music.title}")
             Text("Artist: ${music.artist}")
-            Text("Album ID: ${music.albumId}")
+
         }
     } else {
         Text("No music selected.")

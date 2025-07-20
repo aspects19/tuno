@@ -136,11 +136,11 @@ fun MusicItem(music: Music, navController: NavController, viewModel: SharedMusic
 }
 
 @Composable
-fun AlbumArtOrFallback(albumId: Long) {
+fun AlbumArtOrFallback(albumId: Long, rounding: Int  = 6, size: Int = 64) {
     val uri = getAlbumArtUri(albumId)
     Box(
         modifier = Modifier
-            .size(64.dp)
+            .size(size.dp)
 
     ) {
 
@@ -152,7 +152,7 @@ fun AlbumArtOrFallback(albumId: Long) {
             contentDescription = "Album Art",
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(6.dp))
+                .clip(RoundedCornerShape(rounding.dp))
 
         )
     }
