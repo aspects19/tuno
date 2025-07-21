@@ -1,6 +1,7 @@
 //musicList.kt
 package com.tuno.player.screens
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -100,13 +102,13 @@ fun MusicListScreen(
             Text("No music found.")
         }
     } else {
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier.padding(4.dp)
+        ) {
             itemsIndexed(musicList) { index, music ->
                 MusicItem(music, navController, viewmodel)
                 if (index < musicList.lastIndex) {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(0.dp)
-                    )
+                    HorizontalDivider()
                 }
             }
         }
@@ -136,12 +138,16 @@ fun MusicItem(music: Music, navController: NavController, viewModel: SharedMusic
 }
 
 @Composable
-fun AlbumArtOrFallback(albumId: Long, rounding: Int  = 6, size: Int = 64) {
+fun AlbumArtOrFallback(
+    albumId: Long,
+    @SuppressLint("ModifierParameter")
+    containerModifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier
+    ) {
     val uri = getAlbumArtUri(albumId)
     Box(
-        modifier = Modifier
-            .size(size.dp)
-
+        modifier = containerModifier
+            .size(64.dp)
     ) {
 
         AsyncImage(
@@ -150,9 +156,11 @@ fun AlbumArtOrFallback(albumId: Long, rounding: Int  = 6, size: Int = 64) {
                 .crossfade(true)
                 .build(),
             contentDescription = "Album Art",
-            modifier = Modifier
+            modifier = imageModifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(rounding.dp))
+                .clip(RoundedCornerShape(6.dp)),
+            contentScale = ContentScale.Crop
+
 
         )
     }
