@@ -2,12 +2,14 @@
 package com.tuno.player.screens
 
 import android.annotation.SuppressLint
+import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,7 +47,10 @@ data class Music(
     val title: String,
     val artist: String,
     val albumId: Long
-)
+){
+    val contentUri: Uri
+        get() = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
+}
 
 fun getMusicList(context: Context): List<Music> {
     val musicList = mutableListOf<Music>()
@@ -88,6 +93,7 @@ fun getAlbumArtUri(albumId: Long): Uri =
 fun MusicListScreen(
     context: Context,
     navController: NavController,
+    statusBarPadding: PaddingValues,
     viewmodel : SharedMusicViewModel
 ) {
     val musicList = remember { mutableStateListOf<Music>() }
@@ -98,12 +104,14 @@ fun MusicListScreen(
     }
 
     if (musicList.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
             Text("No music found.")
         }
     } else {
         LazyColumn(
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier.padding(statusBarPadding)
         ) {
             itemsIndexed(musicList) { index, music ->
                 MusicItem(music, navController, viewmodel)

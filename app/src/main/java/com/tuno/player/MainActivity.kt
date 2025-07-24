@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -67,7 +68,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     private fun launchUI() {
 
         setContent {
@@ -75,10 +75,9 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(
                         modifier = Modifier
-
                             .fillMaxSize()
                     ) {
-                        MainController()
+                        MainController(statusBarPadding = innerPadding)
                     }
                 }
             }
@@ -86,13 +85,17 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun MainController() {
+    private fun MainController(statusBarPadding: PaddingValues) {
         val navController = rememberNavController()
         val musicViewModel: SharedMusicViewModel = viewModel()
-        NavHost(navController = navController, startDestination = MusicListScreen) {
+        NavHost(
+            navController = navController,
+            startDestination = MusicListScreen
+            ) {
             composable<MusicListScreen> {
                 MusicListScreen(
                     context = LocalContext.current,
+                    statusBarPadding = statusBarPadding,
                     navController = navController,
                     viewmodel = musicViewModel
                 )
