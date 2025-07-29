@@ -2,50 +2,82 @@
 package com.tuno.player.screens
 
 import android.net.Uri
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.tuno.player.utils.PlayerController
 import com.tuno.player.utils.SharedMusicViewModel
 import com.tuno.player.utils.rememberPlayerController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
+//@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NowPlaying(viewModel: SharedMusicViewModel) {
+fun NowPlaying(
+        viewModel: SharedMusicViewModel,
+        navController: NavController
+) {
     val music = viewModel.selectedMusic.collectAsState().value
+
 
     if (music != null) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(0.dp)
         ) {
             AlbumArtOrFallback(
@@ -58,62 +90,141 @@ fun NowPlaying(viewModel: SharedMusicViewModel) {
                     .padding(0.dp)
             )
             Column(
-               modifier =  Modifier
-                   .fillMaxSize()
-                   .systemBarsPadding(),
-                verticalArrangement =  Arrangement.Center,
+                modifier =  Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AlbumArtOrFallback(albumId = music.albumId,
-                    containerModifier = Modifier.size(250.dp ),
-                    imageModifier = Modifier.clip(RoundedCornerShape(20.dp))
-                )
-                Text(music.title,
-                    modifier = Modifier
-                        .padding( 0.dp, 14.dp,0.dp,0.dp),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    fontSize = 21.sp
-                )
-                Text(music.artist, color = Color.White)
-
-                var controller = rememberPlayerController(musicUri = music.contentUri)
-
-                var  position = remember { mutableStateOf(0f) }
-                var duration = controller.duration.takeIf { it > 0 }?.toFloat() ?: 1f
-                var isPlaying = controller.isPlaying()
-
-                LaunchedEffect(Unit) {
-                    while (isActive) {
-                        position.value = controller.currentPosition.toFloat()
-                        delay(500)
-                    }
-                }
-
-                Slider(
-                    value = position.value.coerceIn(0f, duration),
-                    onValueChange = {
-                        position.value = it
-                        controller.seekTo(it.toLong())
-                    },
-                    valueRange = 0f..duration,
+                Box(modifier = Modifier.height(30.dp))
+                Row(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
-                        .padding(top = 12.dp)
+                        .height(30.dp)
+                        .padding(horizontal = 4.dp)
+                        .align(Alignment.CenterHorizontally),
+
+                    horizontalArrangement = Arrangement.SpaceBetween,
+
+                    content ={
+
+                        Text("Back",
+                           modifier =  Modifier
+                               .clickable {
+                                   navController.popBackStack()
+                               }
+                               .padding(
+                                   start = 4.dp
+
+                               ))
+                        Text("Lyrics")
+                    }
                 )
-                Box(modifier = Modifier
-                    .background(Color.Red)
-                    .size(20.dp)
-                    .clickable(
+
+                Column(
+                   modifier =  Modifier
+                       .padding(bottom = 13.dp)
+                       .fillMaxSize(),
+                    verticalArrangement =  Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AlbumArtOrFallback(albumId = music.albumId,
+                        containerModifier = Modifier.size(250.dp ),
+                        imageModifier = Modifier.clip(RoundedCornerShape(20.dp))
+                    )
+                    Text(music.title,
+                        modifier = Modifier
+                            .padding( 0.dp, 14.dp,0.dp,0.dp),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        fontSize = 21.sp
+                    )
+                    Text(music.artist, color = Color.White)
+
+                    var controller = rememberPlayerController(musicUri = music.contentUri)
+
+                    var  position = remember { mutableStateOf(0f) }
+                    var duration = controller.duration.takeIf { it > 0 }?.toFloat() ?: 1f
+
+                    //var isPlaying by remember { mutableStateOf(controller.isPlaying()) }
+
+                    LaunchedEffect(Unit) {
+                        while (isActive) {
+                            position.value = controller.currentPosition.toFloat()
+                            delay(100)
+                        }
+                    }
+
+                    Slider(
+                        value = position.value.coerceIn(0f, duration),
+                        thumb = {
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                            )
+                        },
+
+                        track = {
+                            val fraction = derivedStateOf {  position.value / duration }
+
+                                Box(Modifier.fillMaxWidth(1f)) {
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth(fraction.value)
+                                            .align(Alignment.CenterStart)
+                                            .height(3.dp)
+                                            .background(Color.Green, CircleShape)
+                                    )
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth((1f - fraction.value))
+                                            .align(Alignment.CenterEnd)
+                                            .height(1.dp)
+                                            .background(Color.White, CircleShape)
+
+                                    )
+                                }
+
+
+                        },
+
+                        onValueChange = {
+                            position.value = it
+                            controller.seekTo(it.toLong())
+                        },
+                        valueRange = 0f..duration,
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .padding(top = 12.dp)
+                            .requiredHeight(1.dp)
 
                     )
-                )
+
+                    IconButton(
+                        content = {
+                            if (controller.isPlaying()) Icons.Filled.MoreVert.tintColor.green else Icons.Filled.PlayArrow.tintColor.green
+                        },
+                        onClick = {if (controller.isPlaying()) controller.pause() else controller.play()},
+                        modifier = Modifier.background(Color.White)
+
+                    )
+                }
+
             }
-
-
         }
     } else {
         Text("No music selected.")
     }
 }
+
+//@Composable
+//fun Back () {
+//    Box(
+//        modifier = Modifier.size(30.dp)
+//            .clickable {
+//                rememberNavController().popBackStack()
+//            }
+//    ) {
+//        Text("Back")
+//    }
+//}
 
