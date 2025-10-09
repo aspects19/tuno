@@ -3,6 +3,7 @@ package com.tuno.player.screens
 
 import android.net.Uri
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -63,6 +64,14 @@ import com.tuno.player.utils.SharedMusicViewModel
 import com.tuno.player.utils.rememberPlayerController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons.Filled
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.res.painterResource
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -199,14 +208,42 @@ fun NowPlaying(
 
                     )
 
-                    IconButton(
-                        content = {
-                            if (controller.isPlaying()) Icons.Filled.MoreVert.tintColor.green else Icons.Filled.PlayArrow.tintColor.green
-                        },
-                        onClick = {if (controller.isPlaying()) controller.pause() else controller.play()},
-                        modifier = Modifier.background(Color.White)
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Image(
+                            painter = painterResource(com.tuno.player.R.drawable.previous),
+                            contentDescription = "Localized description",
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .size(27.dp)
+                        )
 
-                    )
+                        Image(
+                            painter = if (controller.isPlaying()) painterResource(com.tuno.player.R.drawable.pause) else painterResource(
+                                com.tuno.player.R.drawable.play
+                            ),
+                            contentDescription = "Localized description",
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .size(30.dp)
+                                .clickable {
+                                    if (controller.isPlaying()) controller.pause() else controller.play()
+
+                                }
+                        )
+
+                        Image(
+                            painter = painterResource(com.tuno.player.R.drawable.next),
+                            contentDescription = "Localized description",
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .size(27.dp)
+                        )
+                    }
                 }
 
             }
@@ -216,15 +253,4 @@ fun NowPlaying(
     }
 }
 
-//@Composable
-//fun Back () {
-//    Box(
-//        modifier = Modifier.size(30.dp)
-//            .clickable {
-//                rememberNavController().popBackStack()
-//            }
-//    ) {
-//        Text("Back")
-//    }
-//}
 
