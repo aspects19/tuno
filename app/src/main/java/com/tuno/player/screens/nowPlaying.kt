@@ -1,17 +1,13 @@
 //nowPlaying.kt
 package com.tuno.player.screens
 
-import android.net.Uri
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,58 +16,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.tuno.player.utils.PlayerController
 import com.tuno.player.utils.SharedMusicViewModel
 import com.tuno.player.utils.rememberPlayerController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons.Filled
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.res.painterResource
+import com.tuno.player.R
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +51,8 @@ fun NowPlaying(
         navController: NavController
 ) {
     val music = viewModel.selectedMusic.collectAsState().value
+    val musicList = viewModel.musicList.collectAsState().value
+
 
 
     if (music != null) {
@@ -149,12 +121,14 @@ fun NowPlaying(
                     )
                     Text(music.artist, color = Color.White)
 
-                    var controller = rememberPlayerController(musicUri = music.contentUri)
+                    var controller = rememberPlayerController(
+                        musicUri = music.contentUri,
+                        musicUris = musicList.map { it.contentUri },
+
+                    )
 
                     var  position = remember { mutableStateOf(0f) }
                     var duration = controller.duration.takeIf { it > 0 }?.toFloat() ?: 1f
-
-                    //var isPlaying by remember { mutableStateOf(controller.isPlaying()) }
 
                     LaunchedEffect(Unit) {
                         while (isActive) {
@@ -215,7 +189,7 @@ fun NowPlaying(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Image(
-                            painter = painterResource(com.tuno.player.R.drawable.previous),
+                            painter = painterResource(R.drawable.previous),
                             contentDescription = "Localized description",
                             modifier = Modifier
                                 .padding(top = 12.dp)
@@ -223,8 +197,8 @@ fun NowPlaying(
                         )
 
                         Image(
-                            painter = if (controller.isPlaying()) painterResource(com.tuno.player.R.drawable.pause) else painterResource(
-                                com.tuno.player.R.drawable.play
+                            painter = if (controller.isPlaying()) painterResource(R.drawable.pause) else painterResource(
+                                R.drawable.play
                             ),
                             contentDescription = "Localized description",
                             modifier = Modifier
@@ -237,11 +211,15 @@ fun NowPlaying(
                         )
 
                         Image(
-                            painter = painterResource(com.tuno.player.R.drawable.next),
+                            painter = painterResource(R.drawable.next),
                             contentDescription = "Localized description",
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .size(27.dp)
+                                .clickable() {
+                                    controller.playNext()
+
+                                }
                         )
                     }
                 }

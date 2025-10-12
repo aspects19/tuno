@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.MediaItem
@@ -29,19 +30,20 @@ class PlayerController( private val player: ExoPlayer) {
     }
 
     fun isPlaying(): Boolean = player.isPlaying
+
+    fun playNext() {
+        player.seekToNextMediaItem()
+    }
 }
 
 @Composable
 fun rememberPlayerController(
     context: Context = LocalContext.current,
+    musicUris: List<Uri>,
     musicUri: Uri
 ): PlayerController {
     val player = remember {
-        ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(musicUri))
-            prepare()
-            playWhenReady = true
-        }
+        ExoPlayer.Builder(context).build()
     }
 
     DisposableEffect(Unit) {
@@ -49,5 +51,18 @@ fun rememberPlayerController(
             player.release()
         }
     }
-    return remember { PlayerController(player) }
+
+    LaunchedEffect(musicUris) {
+        if (musicUris.isNotEmpty()) {
+            val mediaItems = musicUris.map { MediaItem.fromUri(it) }
+            player.setMediaItems(mediaItems)
+            player.prepare()
+            player.playWhenReady = true
+        } else {
+            player.stop()
+            player.clearMediaItems()
+        }
+    }
+
+    return remember(player) { PlayerController(player) }
 }

@@ -114,7 +114,7 @@ fun MusicListScreen(
             modifier = Modifier.padding(statusBarPadding)
         ) {
             itemsIndexed(musicList) { index, music ->
-                MusicItem(music, navController, viewmodel)
+                MusicItem(music, musicList, navController, viewmodel)
                 if (index < musicList.lastIndex) {
                     HorizontalDivider()
                 }
@@ -124,13 +124,14 @@ fun MusicListScreen(
 }
 
 @Composable
-fun MusicItem(music: Music, navController: NavController, viewModel: SharedMusicViewModel) {
+fun MusicItem(music: Music, musicList: List<Music>, navController: NavController, viewModel: SharedMusicViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
             .clickable(onClick = {
+                viewModel.setMusicList(musicList)
                 viewModel.selectMusic(music)
                 navController.navigate(NowPlayingScreen(id = music.id))
             })
