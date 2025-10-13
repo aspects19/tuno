@@ -8,9 +8,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 
-class PlayerController( private val player: ExoPlayer) {
+class PlayerController(
+    private val player: ExoPlayer,
+    private val viewModel: SharedMusicViewModel
+    ) {
+
+    init {
+        player.addListener(object : Player.Listener {
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                mediaItem?.localConfiguration?.uri.let { uri ->
+                viewModel.selectedMusicByUri(uri)
+                }
+            }
+        })
+    }
     val currentPosition: Long
         get() = player.currentPosition
 
@@ -31,8 +45,13 @@ class PlayerController( private val player: ExoPlayer) {
 
     fun isPlaying(): Boolean = player.isPlaying
 
+    fun playPrevious() {
+        player.seekToPreviousMediaItem()
+    }
+
     fun playNext() {
         player.seekToNextMediaItem()
+
     }
 }
 
@@ -40,7 +59,8 @@ class PlayerController( private val player: ExoPlayer) {
 fun rememberPlayerController(
     context: Context = LocalContext.current,
     musicUris: List<Uri>,
-    musicUri: Uri
+    musicUri: Uri,
+    viewModel: SharedMusicViewModel
 ): PlayerController {
     val player = remember {
         ExoPlayer.Builder(context).build()
@@ -66,5 +86,5 @@ fun rememberPlayerController(
         }
     }
 
-    return remember(player) { PlayerController(player) }
+    return remember(player) { PlayerController(player, viewModel) }
 }

@@ -1,6 +1,6 @@
-// SharedMusicViewModel.kt
 package com.tuno.player.utils
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,18 +22,10 @@ class SharedMusicViewModel : ViewModel() {
         _selectedMusic.value = music
     }
 
-    fun playNext() {
-        val currentList = _musicList.value
-        if (currentList.isEmpty()) {
-            return
-        }
+    fun selectedMusicByUri(uri: Uri?) {
+        val found = _musicList.value.find { it.contentUri == uri }
+        _selectedMusic.value = found
 
-        val currentIndex = selectedMusic.value?.let { currentList.indexOf(it) } ?: -1
-        val nextIndex = if (currentIndex == -1 || currentIndex == currentList.lastIndex) {
-            0
-        } else {
-            currentIndex + 1
-        }
-        _selectedMusic.value = currentList[nextIndex]
     }
+
 }

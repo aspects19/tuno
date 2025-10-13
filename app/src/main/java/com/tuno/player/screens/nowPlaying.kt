@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -124,11 +125,14 @@ fun NowPlaying(
                     var controller = rememberPlayerController(
                         musicUri = music.contentUri,
                         musicUris = musicList.map { it.contentUri },
+                        viewModel = viewModel
 
                     )
 
                     var  position = remember { mutableStateOf(0f) }
                     var duration = controller.duration.takeIf { it > 0 }?.toFloat() ?: 1f
+
+
 
                     LaunchedEffect(Unit) {
                         while (isActive) {
@@ -157,6 +161,10 @@ fun NowPlaying(
                                             .height(3.dp)
                                             .background(Color.Green, CircleShape)
                                     )
+//                                    Box(Modifier
+//                                        .size(1.dp)
+//                                        .background(Color.Red)
+//                                    )
                                     Box(
                                         Modifier
                                             .fillMaxWidth((1f - fraction.value))
@@ -218,7 +226,6 @@ fun NowPlaying(
                                 .size(27.dp)
                                 .clickable() {
                                     controller.playNext()
-                                    viewModel.playNext()
 
                                 }
                         )
