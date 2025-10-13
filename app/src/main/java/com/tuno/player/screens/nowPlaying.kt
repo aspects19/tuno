@@ -202,6 +202,9 @@ fun NowPlaying(
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .size(27.dp)
+                                .clickable() {
+                                    controller.playPrevious()
+                                }
                         )
 
                         Image(
