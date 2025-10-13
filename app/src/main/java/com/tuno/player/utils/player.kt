@@ -54,8 +54,10 @@ fun rememberPlayerController(
 
     LaunchedEffect(musicUris) {
         if (musicUris.isNotEmpty()) {
+            val startIndex = musicUris.indexOf(musicUri).coerceAtLeast(0)
             val mediaItems = musicUris.map { MediaItem.fromUri(it) }
-            player.setMediaItems(mediaItems)
+            player.setMediaItems(mediaItems, startIndex, 0L)
+
             player.prepare()
             player.playWhenReady = true
         } else {

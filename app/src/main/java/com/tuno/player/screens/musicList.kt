@@ -6,6 +6,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.tuno.player.NowPlayingScreen
 import com.tuno.player.utils.SharedMusicViewModel
+import androidx.core.net.toUri
 
 
 data class Music(
@@ -85,7 +87,7 @@ fun getMusicList(context: Context): List<Music> {
 }
 
 fun getAlbumArtUri(albumId: Long): Uri =
-    Uri.parse("content://media/external/audio/albumart").buildUpon()
+    "content://media/external/audio/albumart".toUri().buildUpon()
         .appendPath(albumId.toString())
         .build()
 

@@ -218,6 +218,7 @@ fun NowPlaying(
                                 .size(27.dp)
                                 .clickable() {
                                     controller.playNext()
+                                    viewModel.playNext()
 
                                 }
                         )
