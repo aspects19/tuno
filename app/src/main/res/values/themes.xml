@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Tuno" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Tuno" parent="android:Theme.Material.Light.NoActionBar" >
+        <item name="android:windowBackground">@color/dark_blue</item>
+    </style>
+    
+
 </resources>
