@@ -2,6 +2,12 @@
 
 Tuno is a lightweight, modern **music player** that focuses on simplicity, aesthetics, and smooth performance.
 
+## Previews
+
+<div  style="display:flex; gap: 15px; flex-wrap: wrap">
+   <img src="/screenshots/listview.jpg" alt="Music List screen">
+   <img src="/screenshots/nowplaying.jpg" alt="Now Playing screen">
+</div>
 
 ## Upcoming Features
 
