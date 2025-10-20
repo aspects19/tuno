@@ -21,4 +21,4 @@ Tuno is still in active development. Planned additions include:
 - [ ] Audio focus handling pause when other apps play sound, resume afterward
 - [ ] Custom icon & dynamic theming
 - [ ] Bluetooth / headset control support
-- [ ] Basic unit tests and UI tests
+- [ ] Basic UI and Unit tests
