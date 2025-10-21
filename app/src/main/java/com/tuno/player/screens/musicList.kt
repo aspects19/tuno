@@ -25,9 +25,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +50,12 @@ data class Music(
 ){
     val contentUri: Uri
         get() = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
+}
+
+sealed class MusicListUiState {
+    object Loading : MusicListUiState()
+    object Empty : MusicListUiState()
+    data class Success(val musicList: List<Music>) : MusicListUiState()
 }
 
 fun getMusicList(context: Context): List<Music> {
@@ -104,27 +108,42 @@ fun MusicListScreen(
     statusBarPadding: PaddingValues,
     viewmodel : SharedMusicViewModel
 ) {
-    val musicList = remember { mutableStateListOf<Music>() }
-
-    LaunchedEffect(Unit) {
-        musicList.clear()
-        musicList.addAll(getMusicList(context))
+    val uiState by produceState<MusicListUiState>(
+        initialValue = MusicListUiState.Loading,
+        key1 = context
+    ) {
+        val musicList = getMusicList(context)
+        value = if (musicList.isEmpty()) {
+            MusicListUiState.Empty
+        } else {
+            MusicListUiState.Success(musicList)
+        }
     }
 
-    if (musicList.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("No music found.")
+    when (uiState) {
+        is MusicListUiState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Loading music...")
+            }
         }
-    } else {
-        LazyColumn(
-            modifier = Modifier.padding(statusBarPadding)
-        ) {
-            itemsIndexed(musicList) { index, music ->
-                MusicItem(music, musicList, navController, viewmodel)
-                if (index < musicList.lastIndex) {
-                    HorizontalDivider()
+        is MusicListUiState.Empty -> {
+            Box(modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No music found.")
+            }
+        }
+        is MusicListUiState.Success -> {
+            LazyColumn(
+                modifier = Modifier.padding(statusBarPadding)
+            ) {
+                itemsIndexed(uiState.musicList) { index, music ->
+                    MusicItem(music, uiState.musicList, navController, viewmodel)
+                    if (index < uiState.musicList.lastIndex) {
+                        HorizontalDivider()
+                    }
                 }
             }
         }
