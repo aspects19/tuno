@@ -22,27 +22,26 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.tuno.player.R
 import com.tuno.player.utils.SharedMusicViewModel
 import com.tuno.player.utils.rememberPlayerController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import androidx.compose.ui.res.painterResource
-import com.tuno.player.R
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,27 +121,27 @@ fun NowPlaying(
                     )
                     Text(music.artist, color = Color.White)
 
-                    var controller = rememberPlayerController(
+                    val controller = rememberPlayerController(
                         musicUri = music.contentUri,
                         musicUris = musicList.map { it.contentUri },
                         viewModel = viewModel
 
                     )
 
-                    var  position = remember { mutableStateOf(0f) }
-                    var duration = controller.duration.takeIf { it > 0 }?.toFloat() ?: 1f
+                    val position = remember { mutableFloatStateOf(0f) }
+                    val duration = controller.duration.takeIf { it > 0 }?.toFloat() ?: 1f
 
 
 
                     LaunchedEffect(Unit) {
                         while (isActive) {
-                            position.value = controller.currentPosition.toFloat()
+                            position.floatValue = controller.currentPosition.toFloat()
                             delay(100)
                         }
                     }
 
                     Slider(
-                        value = position.value.coerceIn(0f, duration),
+                        value = position.floatValue.coerceIn(0f, duration),
                         thumb = {
                             Box(
                                 modifier = Modifier
@@ -151,7 +150,7 @@ fun NowPlaying(
                         },
 
                         track = {
-                            val fraction = derivedStateOf {  position.value / duration }
+                            val fraction = derivedStateOf {  position.floatValue / duration }
 
                                 Box(Modifier.fillMaxWidth(1f)) {
                                     Box(
@@ -161,10 +160,6 @@ fun NowPlaying(
                                             .height(3.dp)
                                             .background(Color.Green, CircleShape)
                                     )
-//                                    Box(Modifier
-//                                        .size(1.dp)
-//                                        .background(Color.Red)
-//                                    )
                                     Box(
                                         Modifier
                                             .fillMaxWidth((1f - fraction.value))
@@ -179,7 +174,7 @@ fun NowPlaying(
                         },
 
                         onValueChange = {
-                            position.value = it
+                            position.floatValue = it
                             controller.seekTo(it.toLong())
                         },
                         valueRange = 0f..duration,
@@ -198,11 +193,11 @@ fun NowPlaying(
                     ) {
                         Image(
                             painter = painterResource(R.drawable.previous),
-                            contentDescription = "Localized description",
+                            contentDescription = "Previous Button",
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .size(27.dp)
-                                .clickable() {
+                                .clickable {
                                     controller.playPrevious()
                                 }
                         )
@@ -211,7 +206,7 @@ fun NowPlaying(
                             painter = if (controller.isPlaying()) painterResource(R.drawable.pause) else painterResource(
                                 R.drawable.play
                             ),
-                            contentDescription = "Localized description",
+                            contentDescription = "Play or Pause button",
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .size(30.dp)
@@ -223,11 +218,11 @@ fun NowPlaying(
 
                         Image(
                             painter = painterResource(R.drawable.next),
-                            contentDescription = "Localized description",
+                            contentDescription = "Play next button",
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .size(27.dp)
-                                .clickable() {
+                                .clickable{
                                     controller.playNext()
 
                                 }

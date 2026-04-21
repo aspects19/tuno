@@ -1,6 +1,8 @@
 package com.tuno.player.utils
 
 import android.content.Context
+import android.media.MediaSession2
+import android.media.session.MediaSession
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -63,8 +65,12 @@ fun rememberPlayerController(
     viewModel: SharedMusicViewModel
 ): PlayerController {
     val player = remember {
-        ExoPlayer.Builder(context).build()
+        ExoPlayer
+            .Builder(context)
+            .setHandleAudioBecomingNoisy(true)
+            .build()
     }
+    val mediaSession = MediaSession(context, "MediaSession").controller
 
     DisposableEffect(Unit) {
         onDispose {
